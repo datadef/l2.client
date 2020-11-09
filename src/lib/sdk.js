@@ -1,10 +1,13 @@
-const Stellar = require("stellar-sdk");
-const { TimeoutInfinite } = require("stellar-base");
-const TEST_SERVER_URL = "https://horizon-testnet.stellar.org";
+const Stellar = require('stellar-sdk')
+const { TimeoutInfinite } = require('stellar-base')
 
 module.exports = {
   Stellar,
   server: new Stellar.Server('https://horizon-testnet.stellar.org'),
-  SERVER_URL: TEST_SERVER_URL,
+  selectNetwork: Stellar.Networks.TESTNET,
+  galacticTradeAccountPublic: 'GDFI63STYLAI2WMPOOKZQATWRUDAMHC4DSMVBVMGJWPETXWOS4K37SPQ',
+  galacticTradeSecret: Stellar.Keypair.fromSecret('SDMZTZBXLMAHJFQXO536EGFTT2NATMYJ3ZPY4BBIRNZTD5V7OADZ4BFY'),
+  baseReserve: 0.5,
+  numberOfEntries: 5,
   TimeoutInfinite
-};
+}
