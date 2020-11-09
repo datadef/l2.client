@@ -168,7 +168,7 @@
                 @click="sendOffer()"
                 v-if="is_logged == 'true'"
               >
-                Buy XLM
+                Buy
               </button>
               <button
                 type="button"
@@ -212,7 +212,7 @@
                 @click="sendOffer()"
                 v-if="is_logged == 'true'"
               >
-                Sell XLM
+                Sell
               </button>
               <button
                 type="button"
@@ -279,7 +279,7 @@
                 <tr v-for="order in active_offers" :key="order.id">
                   <td v-if="me == order.seller"> Sell</td>
                   <td v-else>Buy</td>
-                  <td>{{ order.price }}</td>
+                  <td>{{ (order.price_r.d/order.price_r.n).toFixed(7) }}</td>
                   <td>{{ order.amount }}</td>
                   <td class="text-warning">
                     Open
@@ -472,8 +472,8 @@ export default {
     },
     fetchOrders() {
       this.axios.get("https://auth.datadef.com/orderbook").then((response) => {
-        this.asks = response.data.asks;
-        this.bids = response.data.bids;
+        this.asks = response.data.asks.reverse();
+        this.bids = response.data.bids.reverse();
       });
     },
     fetchOwnOrders() {
