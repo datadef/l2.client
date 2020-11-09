@@ -1,4 +1,7 @@
-# client
+# Stellar DEX L2 DEMO
+```
+Signed fee-bumped transactions are only broadcasted to Horizon when orders are matched on L2 (off-chain). In this way, real-time (making transactions on the orderbook in milliseconds) trading is possible without being dependent on the ledger creation time.
+```
 
 ## Project setup
 ```
@@ -19,6 +22,3 @@ npm run build
 ```
 npm run lint
 ```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
