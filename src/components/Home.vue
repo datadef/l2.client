@@ -121,7 +121,7 @@
           <div class="card-header">
             Trade
           </div>
-          <div class="card-body card-wrapper" style="overflow: hidden">
+          <div class="card-body card-wrapper">
             <div
               class="container btn-group btn-group-toggle"
               data-toggle="buttons"
@@ -224,6 +224,7 @@
                 Connect to Wallet
               </button>
             </div>
+
             <div v-if="is_logged == 'true'">
               <hr />
               <table
