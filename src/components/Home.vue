@@ -38,7 +38,7 @@
 
           <div class="card-header mt-2">
             Spread
-            <small class="float-right">{{ spread.toFixed(7) }}</small>
+            <small class="float-right">{{ spread }}</small>
           </div>
           <div class="card-body">
             <table
