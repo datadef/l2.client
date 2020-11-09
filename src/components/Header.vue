@@ -22,14 +22,80 @@
         </li>
       </ul>
       <form class="form-inline my-2 my-lg-0">
-       
-        <button class="btn btn-outline-success my-2 my-sm-0 mr-2" type="submit">
-          Login
+        <button
+          class="btn btn-outline-success my-2 my-sm-0 mr-2"
+          type="button"
+          data-toggle="modal"
+          data-target="#loginModal"
+        >
+          Connect to Wallet
         </button>
-         <button class="btn btn-success my-2 my-sm-0" type="submit">
-          SignUp
-        </button>
+
+        <!-- Modal -->
+        <div
+          class="modal fade"
+          id="loginModal"
+          tabindex="-1"
+          role="dialog"
+          aria-labelledby="loginModalLabel"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="loginModalLabel">
+                  Connect to Wallet
+                </h5>
+                <button
+                  type="button"
+                  class="close"
+                  data-dismiss="modal"
+                  aria-label="Close"
+                >
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div class="form-group">
+                  <label for="recipient-name" class="col-form-label"
+                    >Your Secret Key:</label
+                  > 
+                  <input type="text" class="form-control" style="width: 100%" placeholder="Your Secret Key"/>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-success">
+                  Login
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </form>
     </div>
   </nav>
 </template>
+
+<script>
+
+export default {
+  data() {
+    return {
+      // connectToWallet() {
+      //       this.axios
+      //           .post()
+      //           .then((response) => {
+
+      //               localStorage.setItem("token", token);
+      //           })
+      //   },
+    };
+  },
+  created() {
+    
+  },
+  methods: {
+    
+  },
+};
+</script>
