@@ -99,64 +99,48 @@
       <div class="col-6">
         <div class="card card-wrapper-custom">
           <div class="card-header">
-            Buy Orders
+            Orderbook
           </div>
           <div class="card-body">
-            <table class="table table-hover table-borderless table-sm table-top">
+            <table
+              class="table table-hover table-borderless table-sm table-top"
+            >
               <thead>
                 <tr>
-                  <th>Time</th>
                   <th>Amount</th>
                   <th>Price</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>Mark</td>
-                  <td>Otto</td>
-                  <td>@mdo</td>
-                </tr>
-                <tr>
-                  <td>Jacob</td>
-                  <td>Thornton</td>
-                  <td>@table-sm</td>
-                </tr>
-                <tr>
-                  <td>Jacob</td>
-                  <td>Thornton</td>
-                  <td>@fat</td>
+                <tr v-for="order in asks" :key="order.hash">
+                  <td>{{ order.amount }}</td>
+                  <td>
+                    {{ order.price }}
+                  </td>
                 </tr>
               </tbody>
             </table>
           </div>
 
           <div class="card-header mt-2">
-            Sell Orders
+            Spread
           </div>
           <div class="card-body">
-            <table class="table table-hover table-borderless table-sm table-top">
+            <table
+              class="table table-hover table-borderless table-sm table-top"
+            >
               <thead>
                 <tr>
-                  <th>Time</th>
                   <th>Amount</th>
                   <th>Price</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>Mark</td>
-                  <td>Otto</td>
-                  <td>@mdo</td>
-                </tr>
-                <tr>
-                  <td>Jacob</td>
-                  <td>Thornton</td>
-                  <td>@table-sm</td>
-                </tr>
-                <tr>
-                  <td>Jacob</td>
-                  <td>Thornton</td>
-                  <td>@fat</td>
+                <tr v-for="order in bids" :key="order.hash">
+                  <td>{{ order.amount }}</td>
+                  <td>
+                    {{ order.price }}
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -186,25 +170,39 @@
             <div class="mt-3" v-if="buy">
               <div class="form-group">
                 <label for="exampleInputEmail1">Price TRY</label>
-                <input class="form-control" placeholder="Price TRY" />
+                <input
+                  class="form-control"
+                  placeholder="Price TRY"
+                  v-model="order.price"
+                />
               </div>
               <div class="form-group">
                 <label for="exampleInputEmail1">Amount XLM</label>
-                <input class="form-control" placeholder="Amount XLM" />
+                <input
+                  class="form-control"
+                  placeholder="Amount XLM"
+                  v-model="order.amount"
+                />
               </div>
-              <a href="#" class="btn btn-success btn-block">Buy</a>
+              <button
+                href="#"
+                class="btn btn-success btn-block"
+                @click="sendOffer()"
+              >
+                Buy
+              </button>
             </div>
 
             <div class="mt-3" v-else>
               <div class="form-group">
                 <label for="exampleInputEmail1">Price TRY</label>
-                <input class="form-control" placeholder="Price TRY" />
+                <input class="form-control" placeholder="Price TRY" v-model="order.price"/>
               </div>
               <div class="form-group">
                 <label for="exampleInputEmail1">Amount XLM</label>
-                <input class="form-control" placeholder="Amount XLM" />
+                <input class="form-control" placeholder="Amount XLM" v-model="order.amount"/>
               </div>
-              <a href="#" class="btn btn-danger btn-block">Sell</a>
+              <a href="#" class="btn btn-danger btn-block" @click="sendOffer()">Sell</a>
             </div>
           </div>
         </div>
@@ -270,12 +268,26 @@
 </template>
 
 <script>
+const { Stellar } = require("@/lib/sdk");
+
 export default {
   data() {
     return {
+      asks: null,
+      bids: null,
       buy: true,
       sell: false,
+      order: {
+        type: "manageBuyOffer",
+        price: null,
+        amount: null,
+        selling: null,
+        buying: null,
+      },
     };
+  },
+  created() {
+    this.fetchOrders();
   },
   methods: {
     toggleToSell() {
@@ -285,6 +297,64 @@ export default {
     toggleToBuy() {
       this.buy = true;
       this.sell = false;
+    },
+    fetchOrders() {
+      this.axios.get("http://localhost:5050/orderbook").then((response) => {
+        this.asks = response.data.asks;
+        this.bids = response.data.bids;
+      });
+    },
+    sendOffer() {
+      var orderType;
+      if(this.buy){
+        orderType = "manageBuyOffer"
+      } else {
+        orderType = "manageSellOffer"
+      }
+      
+      var orderParams = {
+        type: orderType,
+        amount: this.order.amount,
+        price: this.order.price,
+        selling: {},
+        buying: {
+          code: "USD",
+          issuer: "GCKFBEIYV2U22IO2BJ4KVJOIP7XPWQGQFKKWXR6DOSJBV7STMAQSMTGG",
+        },
+      };
+
+      this.axios
+        .post("http://localhost:5050/build_order", orderParams)
+        .then((response) => {
+          var sourceKeypair = Stellar.Keypair.fromSecret(
+            "SBNK2O4GM4IPR5CU4RGYBJI6F4PRMIZGU3LZ2NFP7Y53TBGLP5VUHTYL"
+          );
+
+          const preAuthBuffer = Buffer.from(response.data.xdr, "base64");
+          const preAuthEnvelope = Stellar.xdr.TransactionEnvelope.fromXDR(
+            preAuthBuffer,
+            "base64"
+          );
+          const preAuthTransaction = new Stellar.Transaction(
+            preAuthEnvelope,
+            Stellar.Networks.TESTNET
+          );
+
+          preAuthTransaction.sign(sourceKeypair);
+
+          const finalPreAuthEnvelopeXDR = preAuthTransaction
+            .toEnvelope()
+            .toXDR()
+            .toString("base64");
+
+          this.axios
+            .post("http://localhost:5050/order", {
+              xdr: finalPreAuthEnvelopeXDR,
+            })
+            .then(() => {
+              this.fetchOrders();
+            });
+        });
     },
   },
 };
@@ -302,7 +372,7 @@ export default {
 
 .card-wrapper-custom {
   height: 51.5vh;
-  overflow-y:scroll
+  overflow-y: scroll;
 }
 
 .table-top {
