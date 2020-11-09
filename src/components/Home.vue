@@ -466,14 +466,14 @@ export default {
       return balance;
     },
     fetchOrders() {
-      this.axios.get("http://localhost:5050/orderbook").then((response) => {
+      this.axios.get("https://auth.datadef.com/orderbook").then((response) => {
         this.asks = response.data.asks;
         this.bids = response.data.bids;
       });
     },
     fetchOwnOrders() {
       this.axios
-        .get("http://localhost:5050/orders", {
+        .get("https://auth.datadef.com/orders", {
           headers: {
             Authorization: "Bearer " + localStorage.getItem("token"),
           },
@@ -518,7 +518,7 @@ export default {
       };
 
       this.axios
-        .post("http://localhost:5050/build_order", orderParams, axiosConfig)
+        .post("https://auth.datadef.com/build_order", orderParams, axiosConfig)
         .then((response) => {
           const secret = Stellar.Keypair.fromSecret(
             localStorage.getItem("secret_key")
@@ -543,7 +543,7 @@ export default {
 
           this.axios
             .post(
-              "http://localhost:5050/order",
+              "https://auth.datadef.com/order",
               {
                 xdr: finalPreAuthEnvelopeXDR,
               },
@@ -739,7 +739,7 @@ export default {
       };
 
       this.axios
-        .post("http://localhost:5050/cancel", { id: id }, axiosConfig)
+        .post("https://auth.datadef.com/cancel", { id: id }, axiosConfig)
         .then((response) => {
           console.log(response);
           this.fetchOrders();
