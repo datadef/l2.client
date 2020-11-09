@@ -3,6 +3,10 @@
     <div class="alert alert-success" role="alert" v-if="message">
       {{ message }}
     </div>
+    <div class="alert alert-primary">
+     This is a very basic example of "off-chain" matching engine running on Stellar. Use it knowing that there is a lot to check, fix and add.
+     Basically, what is done is that trading transactions signed by users on behalf of their accounts are guaranteed with the "fee-bump" feature, only sent to Horizon when they match on Layer(L2).
+    </div>
     <h4 class="mb-3">
       XLM - USD
       <a
