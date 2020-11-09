@@ -196,13 +196,23 @@
             <div class="mt-3" v-else>
               <div class="form-group">
                 <label for="exampleInputEmail1">Price TRY</label>
-                <input class="form-control" placeholder="Price TRY" v-model="order.price"/>
+                <input
+                  class="form-control"
+                  placeholder="Price TRY"
+                  v-model="order.price"
+                />
               </div>
               <div class="form-group">
                 <label for="exampleInputEmail1">Amount XLM</label>
-                <input class="form-control" placeholder="Amount XLM" v-model="order.amount"/>
+                <input
+                  class="form-control"
+                  placeholder="Amount XLM"
+                  v-model="order.amount"
+                />
               </div>
-              <a href="#" class="btn btn-danger btn-block" @click="sendOffer()">Sell</a>
+              <a href="#" class="btn btn-danger btn-block" @click="sendOffer()"
+                >Sell</a
+              >
             </div>
           </div>
         </div>
@@ -216,12 +226,36 @@
             Open Orders
           </div>
           <div class="card-body card-wrapper">
-            <h5 class="card-title">Special title treatment</h5>
-            <p class="card-text">
-              With supporting text below as a natural lead-in to additional
-              content.
-            </p>
-            <a href="#" class="btn btn-primary">Go somewhere</a>
+            <table class="table table-hover table-sm table-top">
+              <thead>
+                <tr>
+                  <th>Pair</th>
+                  <th>Side</th>
+                  <th>Price</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Mark</td>
+                  <td>Otto</td>
+                  <td>@mdo</td>
+                  <td>@mdo</td>
+                </tr>
+                <tr>
+                  <td>Mark</td>
+                  <td>Otto</td>
+                  <td>@mdo</td>
+                  <td>@mdo</td>
+                </tr>
+                <tr>
+                  <td>Mark</td>
+                  <td>Otto</td>
+                  <td>@mdo</td>
+                  <td>@mdo</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -306,12 +340,12 @@ export default {
     },
     sendOffer() {
       var orderType;
-      if(this.buy){
-        orderType = "manageBuyOffer"
+      if (this.buy) {
+        orderType = "manageBuyOffer";
       } else {
-        orderType = "manageSellOffer"
+        orderType = "manageSellOffer";
       }
-      
+
       var orderParams = {
         type: orderType,
         amount: this.order.amount,
