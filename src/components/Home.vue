@@ -355,7 +355,7 @@
               <tbody>
                 <tr v-for="trade in history[0]" :key="trade.id">
                   <td>{{ trade.base_amount }}</td>
-                  <td>{{ (trade.price.d / trade.price.n).toFixed(2) }}</td>
+                  <td>{{ (trade.price.n / trade.price.d).toFixed(7) }}</td>
                   <td>
                     {{
                       new Date(trade.ledger_close_time).getHours() +
