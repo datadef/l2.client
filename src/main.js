@@ -12,6 +12,8 @@ Vue.config.productionTip = false
 Vue.prototype.$Stellar = new StellarSdk.Server("https://horizon-testnet.stellar.org");
 Vue.prototype.$Network = StellarSdk.Networks.TESTNET
 
+axios.defaults.baseURL = "https://auth.datadef.com"
+
 new Vue({
   router,
   render: h => h(App),

@@ -111,7 +111,7 @@ export default {
         public_key: sourcePublicKey,
       };
       this.axios
-        .post("https://auth.datadef.com/login", loginParams)
+        .post("login", loginParams)
         .then((response) => {
           localStorage.setItem("token", response.data.token);
           localStorage.setItem("secret_key", this.secret_key);

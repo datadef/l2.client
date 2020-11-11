@@ -4,8 +4,11 @@
       {{ message }}
     </div>
     <div class="alert alert-primary">
-     This is a very basic example of "off-chain" matching engine running on Stellar. Use it knowing that there is a lot to check, fix and add.
-     Basically, what is done is that trading transactions signed by users on behalf of their accounts are guaranteed with the "fee-bump" feature, only sent to Horizon when they match on Layer(L2).
+      This is a very basic example of "off-chain" matching engine running on
+      Stellar. Use it knowing that there is a lot to check, fix and add.
+      Basically, what is done is that trading transactions signed by users on
+      behalf of their accounts are guaranteed with the "fee-bump" feature, only
+      sent to Horizon when they match on Layer(L2).
     </div>
     <h4 class="mb-3">
       XLM - USD
@@ -80,8 +83,8 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="order in asks" :key="order.hash">
-                  <td>{{ order.amount }}</td>
+                <tr v-for="order in asks" :key="order.price">
+                  <td>{{ parseFloat(order.amount).toFixed(7) }}</td>
                   <td>
                     {{ order.price }}
                   </td>
@@ -105,7 +108,7 @@
               </thead>
               <tbody>
                 <tr v-for="order in bids" :key="order.price">
-                  <td>{{ order.amount }}</td>
+                  <td>{{ parseFloat(order.amount).toFixed(7) }}</td>
                   <td>
                     {{ order.price }}
                   </td>
@@ -277,9 +280,9 @@
               </thead>
               <tbody>
                 <tr v-for="order in active_offers" :key="order.id">
-                  <td v-if="me == order.seller"> Sell</td>
+                  <td v-if="me == order.seller">Sell</td>
                   <td v-else>Buy</td>
-                  <td>{{ (order.price_r.d/order.price_r.n).toFixed(7) }}</td>
+                  <td>{{ (order.price_r.n / order.price_r.d).toFixed(7) }}</td>
                   <td>{{ order.amount }}</td>
                   <td class="text-warning">
                     Open
@@ -311,7 +314,12 @@
               </thead>
               <tbody>
                 <tr v-for="order in own_orders" :key="order.hash">
-                  <td v-if="order.type == 'manageBuyOffer'" class="text-success">Buy</td>
+                  <td
+                    v-if="order.type == 'manageBuyOffer'"
+                    class="text-success"
+                  >
+                    Buy
+                  </td>
                   <td class="text-danger" v-else>Sell</td>
                   <td>{{ order.price }}</td>
                   <td>{{ order.amount }}</td>
@@ -325,7 +333,7 @@
                     Success
                   </td>
                   <td class="text-primary" v-else>Executing</td>
-                  <td  v-if="order.status == 1">
+                  <td v-if="order.status == 1">
                     <a href="#" @click="cancelL2Order(order._id)">Cancel</a>
                   </td>
                   <td v-else>
@@ -382,12 +390,12 @@ export default {
       return localStorage.getItem("is_logged");
     },
     me() {
-            const keypair = Stellar.Keypair.fromSecret(
+      const keypair = Stellar.Keypair.fromSecret(
         localStorage.getItem("secret_key")
       );
 
       return keypair.publicKey();
-    }
+    },
   },
   data() {
     return {
@@ -415,7 +423,7 @@ export default {
   created() {
     this.fetchGlobalOrderBook();
     this.fetchTradeHistory();
-    
+
     if (localStorage.getItem("is_logged") == "true") {
       this.fetchAccount();
       this.fetchOrders();
@@ -471,14 +479,14 @@ export default {
       return balance;
     },
     fetchOrders() {
-      this.axios.get("https://auth.datadef.com/orderbook").then((response) => {
-        this.asks = response.data.asks.reverse();
-        this.bids = response.data.bids.reverse();
+      this.axios.get("orderbook").then((response) => {
+        this.asks = response.data.asks;
+        this.bids = response.data.bids;
       });
     },
     fetchOwnOrders() {
       this.axios
-        .get("https://auth.datadef.com/orders", {
+        .get("orders", {
           headers: {
             Authorization: "Bearer " + localStorage.getItem("token"),
           },
@@ -500,18 +508,18 @@ export default {
 
       if (this.buy) {
         orderType = "manageBuyOffer";
-        selling = "native";
-        buying = {
-          code: "USD",
-          issuer: "GCKFBEIYV2U22IO2BJ4KVJOIP7XPWQGQFKKWXR6DOSJBV7STMAQSMTGG",
-        };
-      } else {
-        orderType = "manageSellOffer";
         selling = {
           code: "USD",
           issuer: "GCKFBEIYV2U22IO2BJ4KVJOIP7XPWQGQFKKWXR6DOSJBV7STMAQSMTGG",
         };
         buying = "native";
+      } else {
+        orderType = "manageSellOffer";
+        selling = "native";
+        buying = {
+          code: "USD",
+          issuer: "GCKFBEIYV2U22IO2BJ4KVJOIP7XPWQGQFKKWXR6DOSJBV7STMAQSMTGG",
+        };
       }
 
       var orderParams = {
@@ -523,7 +531,7 @@ export default {
       };
 
       this.axios
-        .post("https://auth.datadef.com/build_order", orderParams, axiosConfig)
+        .post("build_order", orderParams, axiosConfig)
         .then((response) => {
           const secret = Stellar.Keypair.fromSecret(
             localStorage.getItem("secret_key")
@@ -548,7 +556,7 @@ export default {
 
           this.axios
             .post(
-              "https://auth.datadef.com/order",
+              "order",
               {
                 xdr: finalPreAuthEnvelopeXDR,
               },
@@ -582,11 +590,11 @@ export default {
         x.orderBook = orderbookResponse;
       };
 
-      var asset_x = new Stellar.Asset(
+      var asset_x = new Stellar.Asset.native();
+      var asset_y = new Stellar.Asset(
         "USD",
         "GCKFBEIYV2U22IO2BJ4KVJOIP7XPWQGQFKKWXR6DOSJBV7STMAQSMTGG"
       );
-      var asset_y = new Stellar.Asset.native();
 
       x.orderbookFunction = server
         .orderbook(asset_x, asset_y)
@@ -596,12 +604,13 @@ export default {
         });
     },
     fetchTradeHistory() {
-      var asset_x = new Stellar.Asset(
+      var asset_x = new Stellar.Asset.native();
+      var asset_y = new Stellar.Asset(
         "USD",
         "GCKFBEIYV2U22IO2BJ4KVJOIP7XPWQGQFKKWXR6DOSJBV7STMAQSMTGG"
       );
-      var asset_y = new Stellar.Asset.native();
       var x = this;
+
       server
         .trades()
         .forAssetPair(asset_x, asset_y)
@@ -743,13 +752,11 @@ export default {
         },
       };
 
-      this.axios
-        .post("https://auth.datadef.com/cancel", { id: id }, axiosConfig)
-        .then((response) => {
-          console.log(response);
-          this.fetchOrders();
-          this.fetchOwnOrders();
-        });
+      this.axios.post("cancel", { id: id }, axiosConfig).then((response) => {
+        console.log(response);
+        this.fetchOrders();
+        this.fetchOwnOrders();
+      });
     },
   },
 };
